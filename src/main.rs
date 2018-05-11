@@ -8,18 +8,20 @@ use std::collections::HashMap;
 use std::env;
 
 fn main() {
-    let mut args: Vec<_> = env::args().collect();
+    let args: Vec<_> = env::args().collect();
     let mut typeConsts: HashMap<String, String> = HashMap::new();
     let item = Item::new();
+    //println!("{}", item);
 
-    println!("{}", item);
-    let path = args.pop().expect("Requires path");
-    let re = read(path);
+    let path = args.last().expect("Requires path");
+    println!("{}", path);
+    let re = load(path.clone());
     println!("{:?}", re);
 }
 
-fn read(path: String) -> io::Result<()> {
-    let s = read_from_file(path: String);
+fn load(path: String) -> io::Result<()> {
+    println!("{}", path);
+    let s = read_from_file(path);
 
     println!("{}", s.get(0).expect("No first line"));
 
@@ -33,6 +35,8 @@ fn read(path: String) -> io::Result<()> {
 #[inline]
 fn read_from_file(path: String) -> Vec<String> {
     let mut s = String::new();
-    File::open(path)?.read_to_string(&mut s)?;
-    let s = s.lines().map(|l| l.to_string()).collect::<Vec<String>>()
+    File::open(path).unwrap().read_to_string(&mut s);
+    s.lines().map(|l| l.to_string())
+        .map(|l| {println!("{}", l); l})
+        .collect::<Vec<String>>()
 }

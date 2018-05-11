@@ -1,5 +1,8 @@
 mod item;
+mod format;
+
 use item::Item;
+use format::Format;
 use std::io;
 use std::io::prelude::*;
 use std::io::BufReader;
@@ -24,10 +27,7 @@ fn read(path: String) -> io::Result<()> {
     let mut buffer = String::new();
     reader.read_line(&mut buffer)?;
     println!("{}", buffer);
-    let mut vars = buffer[1..buffer.len()-2].split("]:[");
-    for v in vars {
-        println!("{}", v);
-    }
+    let format = Format::from(buffer);
 
     Ok(())
 }

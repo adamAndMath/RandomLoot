@@ -12,17 +12,17 @@ pub struct ItemStack(u64, Item);
 
 impl fmt::Display for Item {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        writeln!(f, "{{")?;
         for (k,p) in &self.0 {
-            try!(write!(f, "\n{}: {}", k, p));
+            writeln!(f, "{}: {}", k, p)?;
         }
-
-        Ok(())
+        write!(f, "}}")
     }
 }
 
 impl fmt::Display for ItemStack {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "amount: {}{}", self.0, self.1)
+        write!(f, "amount: {}x{}", self.0, self.1)
     }
 }
 

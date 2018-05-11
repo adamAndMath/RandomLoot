@@ -19,15 +19,15 @@ fn main() {
 }
 
 fn read(path: String) -> io::Result<()> {
-    let f = File::open(path)?;
-    let mut reader = BufReader::new(f);
-    let mut buffer = String::new();
-    reader.read_line(&mut buffer)?;
-    println!("{}", buffer);
-    let mut vars = buffer[1..buffer.len()-2].split("]:[");
+    let mut s = String::new();
+    File::open(path)?.read_to_string(&mut s)?;
+    let s = s.lines().map(|l| l.to_string()).collect::<Vec<String>>();
+
+    println!("{}", s.get(0).expect("No first line"));
+
+    let mut vars = s.get(0).expect("No first line").split("]:[");
     for v in vars {
         println!("{}", v);
     }
-
     Ok(())
 }

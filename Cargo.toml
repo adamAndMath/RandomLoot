@@ -1,0 +1,6 @@
+[package]
+name = "random_loot"
+version = "0.1.0"
+authors = ["Adam <adam.and.math@gmail.com>"]
+
+[dependencies]

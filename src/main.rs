@@ -19,9 +19,7 @@ fn main() {
 }
 
 fn read(path: String) -> io::Result<()> {
-    let mut s = String::new();
-    File::open(path)?.read_to_string(&mut s)?;
-    let s = s.lines().map(|l| l.to_string()).collect::<Vec<String>>();
+    let s = read_from_file(path: String);
 
     println!("{}", s.get(0).expect("No first line"));
 
@@ -30,4 +28,11 @@ fn read(path: String) -> io::Result<()> {
         println!("{}", v);
     }
     Ok(())
+}
+
+#[inline]
+fn read_from_file(path: String) -> Vec<String> {
+    let mut s = String::new();
+    File::open(path)?.read_to_string(&mut s)?;
+    let s = s.lines().map(|l| l.to_string()).collect::<Vec<String>>()
 }

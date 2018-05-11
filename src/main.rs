@@ -11,23 +11,35 @@ use std::collections::HashMap;
 use std::env;
 
 fn main() {
-    let mut args: Vec<_> = env::args().collect();
+    let args: Vec<_> = env::args().collect();
     let mut typeConsts: HashMap<String, String> = HashMap::new();
     let item = Item::new();
+    //println!("{}", item);
 
-    println!("{}", item);
-    let path = args.pop().expect("Requires path");
-    let re = read(path);
+    let path = args.last().expect("Requires path");
+    println!("{}", path);
+    let re = load(path.clone());
     println!("{:?}", re);
 }
 
-fn read(path: String) -> io::Result<()> {
-    let f = File::open(path)?;
-    let mut reader = BufReader::new(f);
-    let mut buffer = String::new();
-    reader.read_line(&mut buffer)?;
-    println!("{}", buffer);
-    let format = Format::from(buffer);
+fn load(path: String) -> io::Result<()> {
+    println!("{}", path);
+    let lines = read_from_file(path);
+    let items = parse_items(lines);
 
     Ok(())
+}
+
+#[inline]
+fn read_from_file(path: String) -> Vec<String> {
+    let mut s = String::new();
+    File::open(path).unwrap().read_to_string(&mut s);
+    s.lines().map(|l| l.to_string())
+        .map(|l| {println!("{}", l); l})
+        .collect::<Vec<String>>()
+}
+
+fn parse_items(mut lines: Vec<String>) -> Vec<Item> { //TODO
+    let mut i = lines.into_iter();
+    Vec::new()
 }

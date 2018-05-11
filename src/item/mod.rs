@@ -8,14 +8,21 @@ use self::insertable::Insertable;
 use self::prop::Prop;
 
 pub struct Item(HashMap<String, Prop>);
+pub struct ItemStack(u64, Item);
 
 impl fmt::Display for Item {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         for (k,p) in &self.0 {
-            try!(write!(f, "{}: {}", k, p));
+            try!(write!(f, "\n{}: {}", k, p));
         }
 
         Ok(())
+    }
+}
+
+impl fmt::Display for ItemStack {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(f, "amount: {}{}", self.0, self.1)
     }
 }
 

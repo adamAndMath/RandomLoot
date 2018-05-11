@@ -21,14 +21,9 @@ fn main() {
 
 fn load(path: String) -> io::Result<()> {
     println!("{}", path);
-    let s = read_from_file(path);
+    let lines = read_from_file(path);
+    let items = parse_items(lines);
 
-    println!("{}", s.get(0).expect("No first line"));
-
-    let mut vars = s.get(0).expect("No first line").split("]:[");
-    for v in vars {
-        println!("{}", v);
-    }
     Ok(())
 }
 
@@ -39,4 +34,9 @@ fn read_from_file(path: String) -> Vec<String> {
     s.lines().map(|l| l.to_string())
         .map(|l| {println!("{}", l); l})
         .collect::<Vec<String>>()
+}
+
+fn parse_items(mut lines: Vec<String>) -> Vec<Item> { //TODO
+    let mut i = lines.into_iter();
+    Vec::new()
 }

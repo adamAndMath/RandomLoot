@@ -6,10 +6,11 @@ use format::Format;
 use std::io;
 use std::io::prelude::*;
 use std::io::BufReader;
-use std::error::Error;
 use std::fs::File;
 use std::collections::HashMap;
 use std::env;
+
+type Result<T> = std::result::Result<T, String>;
 
 fn main() {
     let args: Vec<_> = env::args().collect();
@@ -19,13 +20,15 @@ fn main() {
 
     let path = args.last().expect("Requires path");
     println!("{}", path);
-    let re = load(path.clone());
-    println!("{:?}", re);
+    match load(path.clone()) {
+        Ok(expr) => expr,
+        Err(e) => println!("{}", e),
+    }
 }
 
-fn load(path: String) -> Result<(), String> {
+fn load(path: String) -> Result<()> {
     println!("{}", path);
-    let lines = read_from_file(path);
+    let lines = read_from_file(path)?;
     let format = Format::from(lines[0].to_string())?;
     let items = parse_items(format, lines)?;
 
@@ -33,16 +36,16 @@ fn load(path: String) -> Result<(), String> {
 }
 
 #[inline]
-fn read_from_file(path: String) -> Vec<String> {
+fn read_from_file(path: String) -> Result<Vec<String>> {
     let mut s = String::new();
-    File::open(path).unwrap().read_to_string(&mut s);
-    s.lines().map(|l| l.to_string())
-        .map(|l| {println!("{}", l); l})
-        .collect::<Vec<String>>()
+    File::open(path).unwrap().read_to_string(&mut s).map_err(|e| e.to_string())?;
+    let lines: Vec<String> = s.lines().map(|l| l.to_string()).collect();
+    Ok(lines)
 }
 
-fn parse_items(format: Format, lines: Vec<String>) -> Result<Vec<(Item,u32)>, String> { //TODO
-    let results: Vec<Result<(Item, u32), Box<Error>>> = lines.into_iter().skip(1).map(|s| format.parse(s)).collect();
+fn parse_items(format: Format, lines: Vec<String>) -> Result<Vec<(Item,u32)>> {
+    let indexed_lines = (0..lines.len()).zip(lines);
+    let results: Vec<Result<(Item, u32)>> = indexed_lines.skip(1).map(|(i, s)| format.parse(s).map_err(|e| format!("ln {}: {}", i, e))).collect();
     let mut errs: Vec<String> = vec!();
     let mut items: Vec<(Item, u32)> = vec!();
 
@@ -54,7 +57,7 @@ fn parse_items(format: Format, lines: Vec<String>) -> Result<Vec<(Item,u32)>, St
     }
 
     if errs.len() != 0 {
-        Err(errs.join("\n"))
+        Err(format!("Failed to parse lines:\n{}", errs.join("\n")))
     } else {
         Ok(items)
     }

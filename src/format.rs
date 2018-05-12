@@ -22,9 +22,9 @@ impl Format {
         let price = args[2].parse::<i32>()?;
         let rand = args[3].parse::<u32>()?;
 
-        item.insert("name".to_owned(), name);
-        item.insert("weight".to_owned(), weight);
-        item.insert("price".to_owned(), price);
+        item.insert("name".to_owned(), Box::new(name));
+        item.insert("weight".to_owned(), Box::new(weight));
+        item.insert("price".to_owned(), Box::new(price));
 
         Ok((item, rand))
     }

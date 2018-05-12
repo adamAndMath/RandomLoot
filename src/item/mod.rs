@@ -1,13 +1,11 @@
 mod prop;
-mod insertable;
 
 use std::collections::HashMap;
 use std::fmt;
 
-use self::insertable::Insertable;
 use self::prop::Prop;
 
-pub struct Item(HashMap<String, Prop>);
+pub struct Item(HashMap<String, Box<Prop>>);
 pub struct ItemStack(u64, Item);
 
 impl fmt::Display for Item {
@@ -31,11 +29,11 @@ impl Item {
         Item(HashMap::new())
     }
 
-    pub fn insert<P: Insertable>(&mut self, k: String, v: P) {
-        self.0.insert(k, v.wrap());
+    pub fn insert(&mut self, k: String, v: Box<Prop>) {
+        self.0.insert(k, v);
     }
 
-    pub fn get<P: Insertable>(&mut self, k: &String) -> Option<&P> {
-        self.0.get(k).and_then(P::unwrap)
+    pub fn get(&mut self, k: &String) -> Option<&Box<Prop>> {
+        self.0.get(k)
     }
 }

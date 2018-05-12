@@ -44,8 +44,7 @@ fn read_from_file(path: String) -> Result<Vec<String>> {
 }
 
 fn parse_items(format: Format, lines: Vec<String>) -> Result<Vec<(Item,u32)>> {
-    let indexed_lines = (0..lines.len()).zip(lines);
-    let results: Vec<Result<(Item, u32)>> = indexed_lines.skip(1).map(|(i, s)| format.parse(s).map_err(|e| format!("ln {}: {}", i, e))).collect();
+    let results: Vec<Result<(Item, u32)>> = lines.into_iter().enumerate().skip(1).map(|(i, s)| format.parse(s).map_err(|e| format!("ln {}: {}", i, e))).collect();
     let mut errs: Vec<String> = vec!();
     let mut items: Vec<(Item, u32)> = vec!();
 

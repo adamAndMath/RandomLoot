@@ -1,6 +1,6 @@
 use std::fmt;
 
-pub trait Prop: fmt::Display {
+pub trait Prop: fmt::Display + fmt::Debug {
 
 }
 

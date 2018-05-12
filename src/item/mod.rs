@@ -5,6 +5,7 @@ use std::fmt;
 
 use self::prop::Prop;
 
+#[derive(Debug)]
 pub struct Item(HashMap<String, Box<Prop>>);
 pub struct ItemStack(u64, Item);
 

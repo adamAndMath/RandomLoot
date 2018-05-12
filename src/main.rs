@@ -23,11 +23,11 @@ fn main() {
     println!("{:?}", re);
 }
 
-fn load(path: String) -> Result<(), Box<Error>> {
+fn load(path: String) -> Result<(), String> {
     println!("{}", path);
     let lines = read_from_file(path);
     let format = Format::from(lines[0].to_string())?;
-    let items = lines.into_iter().skip(1).map(|s| format.parse(s)?).collect();
+    let items = parse_items(format, lines)?;
 
     Ok(())
 }
@@ -41,7 +41,21 @@ fn read_from_file(path: String) -> Vec<String> {
         .collect::<Vec<String>>()
 }
 
-fn parse_items(mut lines: Vec<String>) -> Vec<Item> { //TODO
-    let mut i = lines.into_iter();
-    Vec::new()
+fn parse_items(format: Format, lines: Vec<String>) -> Result<Vec<(Item,u32)>, String> { //TODO
+    let results: Vec<Result<(Item, u32), Box<Error>>> = lines.into_iter().skip(1).map(|s| format.parse(s)).collect();
+    let mut errs: Vec<String> = vec!();
+    let mut items: Vec<(Item, u32)> = vec!();
+
+    for re in results {
+        match re {
+            Ok(p) => items.push(p),
+            Err(e) => errs.push(e.to_string()),
+        }
+    }
+
+    if errs.len() != 0 {
+        Err(errs.join("\n"))
+    } else {
+        Ok(items)
+    }
 }

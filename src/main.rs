@@ -3,23 +3,15 @@ mod format;
 
 use item::Item;
 use format::Format;
-use std::io;
 use std::io::prelude::*;
-use std::io::BufReader;
 use std::fs::File;
-use std::collections::HashMap;
 use std::env;
 
 type Result<T> = std::result::Result<T, String>;
 
 fn main() {
     let args: Vec<_> = env::args().collect();
-    let mut typeConsts: HashMap<String, String> = HashMap::new();
-    let item = Item::new();
-    //println!("{}", item);
-
     let path = args.last().expect("Requires path");
-    println!("{}", path);
     match load(path.clone()) {
         Ok(expr) => expr,
         Err(e) => println!("{}", e),
@@ -27,7 +19,6 @@ fn main() {
 }
 
 fn load(path: String) -> Result<()> {
-    println!("{}", path);
     let lines = read_from_file(path)?;
     let format = Format::from(lines[0].to_string())?;
     let items = parse_items(format, lines)?;

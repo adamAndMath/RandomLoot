@@ -6,6 +6,7 @@ use format::Format;
 use std::io;
 use std::io::prelude::*;
 use std::io::BufReader;
+use std::error::Error;
 use std::fs::File;
 use std::collections::HashMap;
 use std::env;
@@ -22,10 +23,11 @@ fn main() {
     println!("{:?}", re);
 }
 
-fn load(path: String) -> io::Result<()> {
+fn load(path: String) -> Result<(), Box<Error>> {
     println!("{}", path);
     let lines = read_from_file(path);
-    let items = parse_items(lines);
+    let format = Format::from(lines[0].to_string())?;
+    let items = lines.into_iter().skip(1).map(|s| format.parse(s)?).collect();
 
     Ok(())
 }

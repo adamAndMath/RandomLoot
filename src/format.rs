@@ -13,7 +13,7 @@ impl Format {
         Ok(Format())
     }
 
-    pub fn parse(s: String) -> Result<(Item, u32), Box<Error>> {
+    pub fn parse(&self, s: String) -> Result<(Item, u32), Box<Error>> {
         let args: Vec<&str> = s.split(':').map(|s| s.trim()).collect();
         let mut item = Item::new();
 

@@ -3,10 +3,12 @@ extern crate rand;
 mod item;
 mod format;
 mod generator;
+mod quantifier;
 
 use item::Item;
 use format::Format;
 use generator::Generator;
+use quantifier::Quantifier;
 use std::io::prelude::*;
 use std::fs::File;
 use std::env;
@@ -16,19 +18,22 @@ type Result<T> = std::result::Result<T, String>;
 fn main() {
     let args: Vec<_> = env::args().collect();
     let path = args.last().expect("Requires path");
-    let generator = load(path.clone()).unwrap();
-    let item = generator.iter().next().unwrap();
+    let items = load(path.clone()).unwrap();
+    let generator: Generator<usize> = (0..items.len()).map(|i| (items[i].0, i)).collect();
+    let quantifier: Quantifier<usize> = generator.iter().take(10).map(|i| *i).collect();
+    let stacks: Vec<(&Item, u32)> = quantifier.into_iter().map(|(i, q)| (&items[i].1, q)).collect();
 
-    println!("{}", item);
+    for (item, q) in stacks {
+        println!("{}x{}", q, item);
+    }
 }
 
-fn load(path: String) -> Result<Generator<Item>> {
+fn load(path: String) -> Result<Vec<(u32, Item)>> {
     let lines = read_from_file(path)?;
     let format: Format = parse_format(&lines[0])?;
     let items = parse_items(format, lines)?;
-    let generator: Generator<Item> = items.into_iter().collect();
 
-    Ok(generator)
+    Ok(items)
 }
 
 #[inline]

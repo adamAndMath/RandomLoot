@@ -7,7 +7,6 @@ use self::prop::Prop;
 
 #[derive(Debug)]
 pub struct Item(HashMap<String, Box<Prop>>);
-pub struct ItemStack(u64, Item);
 
 impl fmt::Display for Item {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
@@ -16,12 +15,6 @@ impl fmt::Display for Item {
             writeln!(f, "{}: {}", k, p)?;
         }
         write!(f, "}}")
-    }
-}
-
-impl fmt::Display for ItemStack {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "amount: {}x{}", self.0, self.1)
     }
 }
 

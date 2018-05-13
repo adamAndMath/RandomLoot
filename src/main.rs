@@ -14,11 +14,10 @@ use std::env;
 type Result<T> = std::result::Result<T, String>;
 
 fn main() {
-    let mut rng = rand::thread_rng();
     let args: Vec<_> = env::args().collect();
     let path = args.last().expect("Requires path");
     let generator = load(path.clone()).unwrap();
-    let item = generator.get(&mut rng);
+    let item = generator.iter().next().unwrap();
 
     println!("{}", item);
 }

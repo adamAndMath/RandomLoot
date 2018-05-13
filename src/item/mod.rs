@@ -34,7 +34,7 @@ impl Item {
         self.0.insert(k, v);
     }
 
-    pub fn get(&mut self, k: &String) -> Option<&Box<Prop>> {
+    pub fn get(&self, k: &String) -> Option<&Box<Prop>> {
         self.0.get(k)
     }
 }

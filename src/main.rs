@@ -24,7 +24,7 @@ fn main() {
 
 fn load(path: String) -> Result<Generator> {
     let lines = read_from_file(path)?;
-    let format: Format = lines[0].to_string().parse().map_err(|e| format!("Failed to parse format: {}", e))?;
+    let format: Format = parse_format(&lines[0])?;
     let items = parse_items(format, lines)?;
     let generator: Generator = items.into_iter().collect();
 
@@ -37,6 +37,10 @@ fn read_from_file(path: String) -> Result<Vec<String>> {
     File::open(path).unwrap().read_to_string(&mut s).map_err(|e| e.to_string())?;
     let lines: Vec<String> = s.lines().map(|l| l.to_string()).collect();
     Ok(lines)
+}
+
+fn parse_format(s: &String) -> Result<Format> {
+    s.parse().map_err(|e| format!("Failed to parse format: {}", e))
 }
 
 fn parse_items(format: Format, lines: Vec<String>) -> Result<Vec<(u32, Item)>> {

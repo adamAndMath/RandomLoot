@@ -17,10 +17,11 @@ type Result<T> = std::result::Result<T, String>;
 
 fn main() {
     let args: Vec<_> = env::args().collect();
-    let path = args.last().expect("Requires path");
+    let path = args.get(1).expect("Requires path");
+    let amount = args.get(2).map_or(1, |p| p.parse().unwrap());
     let (format, items) = load(path.clone()).unwrap();
     let generator: Generator<usize> = (0..items.len()).map(|i| (items[i].0, i)).collect();
-    let quantifier: Quantifier<usize> = generator.iter().take(10).map(|i| *i).collect();
+    let quantifier: Quantifier<usize> = generator.iter().take(amount).map(|i| *i).collect();
     let stacks: Vec<(&Item, u32)> = quantifier.into_iter().map(|(i, q)| (&items[i].1, q)).collect();
 
     for (item, q) in stacks {

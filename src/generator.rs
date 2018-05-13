@@ -1,7 +1,5 @@
 use std::collections::BTreeMap;
 use std::iter::FromIterator;
-use item::Item;
-use item::ItemStack;
 use rand;
 use rand::Rng;
 

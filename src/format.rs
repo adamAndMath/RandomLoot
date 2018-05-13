@@ -2,7 +2,6 @@ use super::item::Item;
 use std::error::Error;
 use std::str::FromStr;
 use std::result;
-use std::fmt;
 
 type Result<T> = result::Result<T, FormatErr>;
 

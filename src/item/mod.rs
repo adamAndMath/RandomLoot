@@ -27,7 +27,7 @@ impl Item {
         self.0.insert(k, v);
     }
 
-    pub fn get(&self, k: &String) -> Option<&Box<Prop>> {
+    pub fn get(&self, k: &str) -> Option<&Box<Prop>> {
         self.0.get(k)
     }
 }

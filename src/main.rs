@@ -18,22 +18,22 @@ type Result<T> = std::result::Result<T, String>;
 fn main() {
     let args: Vec<_> = env::args().collect();
     let path = args.last().expect("Requires path");
-    let items = load(path.clone()).unwrap();
+    let (format, items) = load(path.clone()).unwrap();
     let generator: Generator<usize> = (0..items.len()).map(|i| (items[i].0, i)).collect();
     let quantifier: Quantifier<usize> = generator.iter().take(10).map(|i| *i).collect();
     let stacks: Vec<(&Item, u32)> = quantifier.into_iter().map(|(i, q)| (&items[i].1, q)).collect();
 
     for (item, q) in stacks {
-        println!("{}x{}", q, item);
+        println!("{}x{}", q, format.to_string(item));
     }
 }
 
-fn load(path: String) -> Result<Vec<(u32, Item)>> {
+fn load(path: String) -> Result<(Format, Vec<(u32, Item)>)> {
     let lines = read_from_file(path)?;
     let format: Format = parse_format(&lines[0])?;
-    let items = parse_items(format, lines)?;
+    let items = parse_items(&format, lines)?;
 
-    Ok(items)
+    Ok((format, items))
 }
 
 #[inline]
@@ -48,7 +48,7 @@ fn parse_format(s: &String) -> Result<Format> {
     s.parse().map_err(|e| format!("Failed to parse format: {}", e))
 }
 
-fn parse_items(format: Format, lines: Vec<String>) -> Result<Vec<(u32, Item)>> {
+fn parse_items(format: &Format, lines: Vec<String>) -> Result<Vec<(u32, Item)>> {
     let results: Vec<Result<(u32, Item)>> = lines.into_iter().enumerate().skip(1).map(|(i, s)| format.parse(s).map_err(|e| format!("ln {}: {}", i, e))).collect();
     let mut errs: Vec<String> = vec!();
     let mut items: Vec<(u32, Item)> = vec!();

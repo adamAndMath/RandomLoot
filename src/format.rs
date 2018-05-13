@@ -38,4 +38,8 @@ impl Format {
 
         Ok((rand, item))
     }
+
+    pub fn to_string(&self, item: &Item) -> String {
+        format!("{}, {} lb, {} cp", item.get("name").unwrap(), item.get("weight").unwrap(), item.get("price").unwrap())
+    }
 }

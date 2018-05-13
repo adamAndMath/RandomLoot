@@ -1,6 +1,7 @@
 use std::collections::BTreeMap;
 use std::iter::FromIterator;
 use rand;
+use rand::ThreadRng;
 use rand::Rng;
 
 #[derive(Debug)]
@@ -10,7 +11,8 @@ pub struct Generator<E> {
 }
 
 pub struct Iter<'a, E: 'a> {
-    generator: &'a Generator<E>
+    generator: &'a Generator<E>,
+    rng: ThreadRng
 }
 
 impl<E> FromIterator<(u32, E)> for Generator<E> {
@@ -31,14 +33,13 @@ impl<'a, E> Iterator for Iter<'a, E> {
     type Item = &'a E;
 
     fn next(&mut self) -> Option<&'a E> {
-        let mut rng = rand::thread_rng();
-        let i = rng.gen_range(0, self.generator.total);
+        let i = self.rng.gen_range(0, self.generator.total);
         self.generator.tree.range(i..).next().map(|e| e.1)
     }
 }
 
 impl<E> Generator<E> {
     pub fn iter<'a>(&'a self) -> Iter<'a, E> {
-        Iter { generator: self }
+        Iter { generator: self, rng: rand::thread_rng() }
     }
 }

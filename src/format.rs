@@ -1,10 +1,19 @@
 use super::item::Item;
 use std::error::Error;
+use std::str::FromStr;
+use std::result;
+use std::fmt;
+
+type Result<T> = result::Result<T, FormatErr>;
 
 pub struct Format();
 
-impl Format {
-    pub fn from(s: String) -> Result<Format, &'static str> {
+pub type FormatErr = Box<Error>;
+
+impl FromStr for Format {
+    type Err = FormatErr;
+
+    fn from_str(s: &str) -> Result<Format> {
         let vars = s[1..s.len()-2].split("]:[");
         for v in vars {
             println!("{}", v);
@@ -12,8 +21,10 @@ impl Format {
 
         Ok(Format())
     }
+}
 
-    pub fn parse(&self, s: String) -> Result<(Item, u32), Box<Error>> {
+impl Format {
+    pub fn parse(&self, s: String) -> Result<(u32, Item)> {
         let args: Vec<&str> = s.split(':').map(|s| s.trim()).collect();
         let mut item = Item::new();
 
@@ -26,6 +37,6 @@ impl Format {
         item.insert("weight".to_owned(), Box::new(weight));
         item.insert("price".to_owned(), Box::new(price));
 
-        Ok((item, rand))
+        Ok((rand, item))
     }
 }

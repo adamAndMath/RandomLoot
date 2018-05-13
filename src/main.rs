@@ -22,11 +22,11 @@ fn main() {
     println!("{}", item);
 }
 
-fn load(path: String) -> Result<Generator> {
+fn load(path: String) -> Result<Generator<Item>> {
     let lines = read_from_file(path)?;
     let format: Format = parse_format(&lines[0])?;
     let items = parse_items(format, lines)?;
-    let generator: Generator = items.into_iter().collect();
+    let generator: Generator<Item> = items.into_iter().collect();
 
     Ok(generator)
 }

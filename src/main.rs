@@ -30,8 +30,9 @@ fn main() {
 }
 
 fn load(path: String) -> Result<(Format, Vec<(u32, Item)>)> {
-    let lines = read_from_file(path)?;
-    let format: Format = parse_format(&lines[0])?;
+    let mut lines = read_from_file(path)?.into_iter();
+    let format_line = lines.next().ok_or("Empty file".to_string())?;
+    let format: Format = parse_format(format_line)?;
     let items = parse_items(&format, lines)?;
 
     Ok((format, items))
@@ -45,11 +46,11 @@ fn read_from_file(path: String) -> Result<Vec<String>> {
     Ok(lines)
 }
 
-fn parse_format(s: &String) -> Result<Format> {
+fn parse_format(s: String) -> Result<Format> {
     s.parse().map_err(|e| format!("Failed to parse format: {}", e))
 }
 
-fn parse_items(format: &Format, lines: Vec<String>) -> Result<Vec<(u32, Item)>> {
+fn parse_items<I: IntoIterator<Item = String>>(format: &Format, lines: I) -> Result<Vec<(u32, Item)>> {
     let results: Vec<Result<(u32, Item)>> = lines.into_iter().enumerate().skip(1).map(|(i, s)| format.parse(s).map_err(|e| format!("ln {}: {}", i, e))).collect();
     let mut errs: Vec<String> = vec!();
     let mut items: Vec<(u32, Item)> = vec!();

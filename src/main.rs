@@ -46,11 +46,11 @@ fn read_from_file(path: String) -> Result<Vec<String>> {
 }
 
 fn parse_format(s: &String) -> Result<Format> {
-    s.parse().map_err(|e| format!("Failed to parse format: {}", e))
+    s.parse().map_err(|e| format!("Failed to parse format: {:?}", e))
 }
 
 fn parse_items(format: &Format, lines: Vec<String>) -> Result<Vec<(u32, Item)>> {
-    let results: Vec<Result<(u32, Item)>> = lines.into_iter().enumerate().skip(1).map(|(i, s)| format.parse(s).map_err(|e| format!("ln {}: {}", i, e))).collect();
+    let results: Vec<Result<(u32, Item)>> = lines.into_iter().enumerate().skip(1).map(|(i, s)| format.parse(s).map_err(|e| format!("ln {}: {:?}", i, e))).collect();
     let mut errs: Vec<String> = vec!();
     let mut items: Vec<(u32, Item)> = Vec::with_capacity(results.len());
 

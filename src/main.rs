@@ -53,7 +53,7 @@ fn parse_format(s: String) -> Result<Format> {
 fn parse_items<I: IntoIterator<Item = String>>(format: &Format, lines: I) -> Result<Vec<(u32, Item)>> {
     let results: Vec<Result<(u32, Item)>> = lines.into_iter().enumerate().skip(1).map(|(i, s)| format.parse(s).map_err(|e| format!("ln {}: {}", i, e))).collect();
     let mut errs: Vec<String> = vec!();
-    let mut items: Vec<(u32, Item)> = vec!();
+    let mut items: Vec<(u32, Item)> = Vec::with_capacity(results.len());
 
     for re in results {
         match re {

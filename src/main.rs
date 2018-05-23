@@ -2,7 +2,7 @@ extern crate rand;
 
 mod item;
 mod format;
-mod generator;
+pub mod generator;
 pub mod quantifier;
 
 use item::Item;

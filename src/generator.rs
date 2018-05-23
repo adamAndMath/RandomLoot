@@ -4,6 +4,7 @@ use rand;
 use rand::ThreadRng;
 use rand::Rng;
 
+///Reterns random elements from a collection based on the weight of the element.
 #[derive(Debug)]
 pub struct Generator<E> {
     tree: BTreeMap<u32, E>,
@@ -34,11 +35,24 @@ impl<'a, E> Iterator for Iter<'a, E> {
 
     fn next(&mut self) -> Option<&'a E> {
         let i = self.rng.gen_range(0, self.generator.total);
-        self.generator.tree.range(i..).next().map(|e| e.1)
+        self.generator.get(i)
     }
 }
 
 impl<E> Generator<E> {
+    ///Gets a sigle random element.
+    pub fn next(&self) -> Option<&E> {
+        let i = rand::thread_rng().gen_range(0, self.total);
+        self.get(i)
+    }
+
+    ///Gets the ellement in that owns the range that the weighted index belongs to.
+    #[inline]
+    pub fn get(&self, i: u32) -> Option<&E> {
+        self.tree.range(i..).next().map(|e| e.1)
+    }
+
+    ///Returns an infinate iterator.
     pub fn iter<'a>(&'a self) -> Iter<'a, E> {
         Iter { generator: self, rng: rand::thread_rng() }
     }

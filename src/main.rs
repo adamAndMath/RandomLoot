@@ -3,7 +3,7 @@ extern crate rand;
 mod item;
 mod format;
 mod generator;
-mod quantifier;
+pub mod quantifier;
 
 use item::Item;
 use format::Format;
@@ -22,7 +22,7 @@ fn main() {
     let (format, items) = load(path.clone()).unwrap();
     let generator: Generator<usize> = (0..items.len()).map(|i| (items[i].0, i)).collect();
     let quantifier: Quantifier<usize> = generator.iter().take(amount).map(|i| *i).collect();
-    let stacks: Vec<(&Item, u32)> = quantifier.into_iter().map(|(i, q)| (&items[i].1, q)).collect();
+    let stacks: Vec<_> = quantifier.into_iter().map(|(i, q)| (&items[i].1, q)).collect();
 
     for (item, q) in stacks {
         println!("{}x{}", q, format.to_string(item));

@@ -24,7 +24,7 @@ impl FromStr for Format {
 }
 
 impl Format {
-    pub fn parse(&self, s: String) -> Result<(usize, Item)> {
+    pub fn parse(&self, s: &str) -> Result<(usize, Item)> {
         let args: Vec<&str> = s.split(':').map(|s| s.trim()).collect();
         let mut item = Item::new();
 

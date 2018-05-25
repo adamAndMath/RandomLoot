@@ -4,7 +4,7 @@ mod item;
 mod format;
 pub mod generator;
 pub mod quantifier;
-mod group;
+pub mod group;
 
 use group::Group;
 use std::env;

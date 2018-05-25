@@ -2,39 +2,12 @@ use std::path::Path;
 use std::fs::File;
 use std::str::FromStr;
 use std::io::prelude::*;
-use std::io;
 
 use item::Item;
 use format::Format;
-use format::FormatErr;
 use generator::Generator;
 use quantifier::Quantifier;
-
-#[derive(Debug)]
-pub enum GroupErr {
-    EmptyFile,
-    File(io::Error),
-    FormatParse(FormatErr),
-    ItemParse(Vec<(usize, FormatErr)>),
-}
-
-impl From<FormatErr> for GroupErr {
-    fn from(e: FormatErr) -> Self {
-        GroupErr::FormatParse(e)
-    }
-}
-
-impl From<Vec<(usize, FormatErr)>> for GroupErr {
-    fn from(e: Vec<(usize, FormatErr)>) -> Self {
-        GroupErr::ItemParse(e)
-    }
-}
-
-impl From<io::Error> for GroupErr {
-    fn from(e: io::Error) -> Self {
-        GroupErr::File(e)
-    }
-}
+use super::GroupErr;
 
 #[derive(Debug)]
 pub struct Group {

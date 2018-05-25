@@ -7,8 +7,8 @@ use rand::Rng;
 ///Reterns random elements from a collection based on the weight of the element.
 #[derive(Debug)]
 pub struct Generator<E> {
-    tree: BTreeMap<u32, E>,
-    total: u32,
+    tree: BTreeMap<usize, E>,
+    total: usize,
 }
 
 pub struct Iter<'a, E: 'a> {
@@ -16,8 +16,8 @@ pub struct Iter<'a, E: 'a> {
     rng: ThreadRng
 }
 
-impl<E> FromIterator<(u32, E)> for Generator<E> {
-    fn from_iter<I: IntoIterator<Item = (u32, E)>>(iter: I) -> Generator<E> {
+impl<E> FromIterator<(usize, E)> for Generator<E> {
+    fn from_iter<I: IntoIterator<Item = (usize, E)>>(iter: I) -> Generator<E> {
         let mut tree = BTreeMap::new();
         let mut total = 0;
 
@@ -48,7 +48,7 @@ impl<E> Generator<E> {
 
     ///Gets the ellement in that owns the range that the weighted index belongs to.
     #[inline]
-    pub fn get(&self, i: u32) -> Option<&E> {
+    pub fn get(&self, i: usize) -> Option<&E> {
         self.tree.range(i..).next().map(|e| e.1)
     }
 

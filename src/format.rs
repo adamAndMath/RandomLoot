@@ -24,14 +24,14 @@ impl FromStr for Format {
 }
 
 impl Format {
-    pub fn parse(&self, s: String) -> Result<(u32, Item)> {
+    pub fn parse(&self, s: String) -> Result<(usize, Item)> {
         let args: Vec<&str> = s.split(':').map(|s| s.trim()).collect();
         let mut item = Item::new();
 
         let name = args[0].to_owned();
         let weight = args[1].parse::<f32>()?;
         let price = args[2].parse::<i32>()?;
-        let rand = args[3].parse::<u32>()?;
+        let rand = args[3].parse::<usize>()?;
 
         item.insert("name".to_owned(), Box::new(name));
         item.insert("weight".to_owned(), Box::new(weight));

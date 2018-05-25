@@ -5,6 +5,7 @@ use std::result;
 
 type Result<T> = result::Result<T, FormatErr>;
 
+#[derive(Debug)]
 pub struct Format();
 
 pub type FormatErr = Box<Error>;

@@ -27,7 +27,7 @@ impl<E> FromIterator<(usize, E)> for Generator<E> {
                 tree.insert(total - 1, item);
             }
         }
-
+        
         Generator { tree: tree, total: total }
     }
 }
@@ -36,6 +36,10 @@ impl<'a, E> Iterator for Iter<'a, E> {
     type Item = &'a E;
 
     fn next(&mut self) -> Option<&'a E> {
+        if self.generator.total == 0 {
+            return None
+        }
+
         let i = self.rng.gen_range(0, self.generator.total);
         self.generator.get(i)
     }
@@ -44,6 +48,10 @@ impl<'a, E> Iterator for Iter<'a, E> {
 impl<E> Generator<E> {
     ///Gets a sigle random element.
     pub fn next(&self) -> Option<&E> {
+        if self.total == 0 {
+            return None
+        }
+
         let i = rand::thread_rng().gen_range(0, self.total);
         self.get(i)
     }
@@ -72,4 +80,11 @@ fn manual_get() {
     assert_eq!(g.get(62), Some(&"2nd"));
     assert_eq!(g.get(63), Some(&"3rd"));
     assert_eq!(g.get(64), None);
+}
+
+#[test]
+fn empty_generator() {
+    let g: Generator<&str> = vec![].into_iter().collect();
+    assert_eq!(g.get(0), None);
+    assert_eq!(g.next(), None);
 }

@@ -17,16 +17,20 @@ pub struct Group {
 }
 
 impl Group {
-    pub fn new(format: Format, items: Vec<(usize, Item)>) -> Self {
+    pub fn new(format: Format, items: Vec<(usize, Item)>) -> Result<Self, GroupErr> {
+        if items.is_empty() {
+            return Err(GroupErr::NoItems)
+        }
+
         let generator = (0..items.len()).map(|i| (items[i].0, i)).collect();
-        Group { format: format, items: items, generator: generator }
+        Ok(Group { format: format, items: items, generator: generator })
     }
 
     pub fn build<'a, I: Iterator<Item = (usize, &'a str)>>(header: &str, lines: I) -> Result<Group, GroupErr> {
         let format: Format = header.parse()?;
         let items: Vec<_> = collect_result(lines.map(|(i, s)| format.parse(s).map_err(|e| (i, e))))?;
 
-        Ok(Self::new(format, items))
+        Self::new(format, items)
     }
 
     pub fn from_path<P: AsRef<Path>>(path: P) -> Result<Group, GroupErr> {

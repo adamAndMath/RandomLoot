@@ -4,7 +4,7 @@ use rand;
 use rand::ThreadRng;
 use rand::Rng;
 
-///Reterns random elements from a collection based on the weight of the element.
+/// Reterns random elements from a collection based on the weight of the element.
 #[derive(Debug)]
 pub struct Generator<E> {
     tree: BTreeMap<usize, E>,
@@ -36,7 +36,7 @@ impl<'a, E> Iterator for Iter<'a, E> {
     type Item = &'a E;
 
     fn next(&mut self) -> Option<&'a E> {
-        if self.generator.total == 0 {
+        if self.generator.is_empty() {
             return None
         }
 
@@ -46,9 +46,15 @@ impl<'a, E> Iterator for Iter<'a, E> {
 }
 
 impl<E> Generator<E> {
-    ///Gets a sigle random element.
+    #[inline]
+    pub fn is_empty(&self) -> bool {
+        self.total == 0
+    }
+
+    /// Gets a sigle random element.
+    /// Returns none if and only if the generator is empty.
     pub fn next(&self) -> Option<&E> {
-        if self.total == 0 {
+        if self.is_empty() {
             return None
         }
 
@@ -56,13 +62,15 @@ impl<E> Generator<E> {
         self.get(i)
     }
 
-    ///Gets the ellement in that owns the range that the weighted index belongs to.
+    /// Gets the ellement in that owns the range that the weighted index belongs to.
+    /// Returns none if the index is out of bounds.
     #[inline]
     pub fn get(&self, i: usize) -> Option<&E> {
         self.tree.range(i..).next().map(|e| e.1)
     }
 
-    ///Returns an infinate iterator.
+    /// Returns an infinate iterator.
+    /// The iterator is empty if the generator is empty.
     pub fn iter<'a>(&'a self) -> Iter<'a, E> {
         Iter { generator: self, rng: rand::thread_rng() }
     }

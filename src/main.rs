@@ -14,6 +14,8 @@ fn main() {
     let path = args.get(1).expect("Requires path");
     let amount = args.get(2).map_or(1, |p| p.parse().unwrap());
 
-    let group = Group::from_path(path).unwrap();
-    group.print(amount);
+    match Group::from_path(path) {
+        Ok(group) => group.print(amount),
+        Err(e) => println!("{}", e),
+    }
 }

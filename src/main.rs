@@ -10,9 +10,9 @@ use group::Group;
 use std::env;
 
 fn main() {
-    let args: Vec<_> = env::args().collect();
-    let path = args.get(1).expect("Requires path");
-    let amount = args.get(2).map_or(1, |p| p.parse().unwrap());
+    let mut args = env::args();
+    let path = args.next().expect("Requires path");
+    let amount = args.next().map_or(1, |p| p.parse().expect("Failed to parse amount"));
 
     match Group::from_path(path) {
         Ok(group) => group.print(amount),

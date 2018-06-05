@@ -10,18 +10,26 @@ use group::Group;
 use std::env;
 
 fn main() {
+    if let Err(e) = process() {
+        println!("{}", e);
+    }
+}
+
+fn process() -> Result<(), String> {
     let mut args = env::args();
-    args.next().unwrap();
+    args.next()
+        .ok_or("Failed to load arguments. This is a bug!")?;
 
     let path = args.next()
-        .expect("Requires path");
+        .ok_or("Requires path")?;
     
     let amount = args.next()
-        .map_or(1, |p| p.parse()
-        .expect("Failed to parse amount"));
+        .map_or(Ok(1), |p| p.parse())
+        .map_err(|e| format!("Failed to parse amount, do to {}", e))?;
 
-    match Group::from_path(path) {
-        Ok(group) => group.print(amount),
-        Err(e) => println!("{}", e),
-    }
+    let group = Group::from_path(path)
+        .map_err(|e| format!("{}", e))?;
+    
+    group.print(amount);
+    Ok(())
 }

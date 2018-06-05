@@ -40,7 +40,7 @@ impl Group {
     }
 
     pub fn generate(&self, amount: usize) -> Vec<(&Item, usize)> {
-        let quantifier: Quantifier<usize> = self.generator.iter().take(amount).map(|i| *i).collect();
+        let quantifier: Quantifier<usize> = self.generator.generate().take(amount).map(|i| *i).collect();
         quantifier.into_iter().map(|(i, q)| (&self.items[i].1, q)).collect()
     }
 

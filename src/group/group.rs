@@ -1,7 +1,6 @@
 use std::path::Path;
-use std::fs::File;
+use std::fs::read_to_string;
 use std::str::FromStr;
-use std::io::prelude::*;
 
 use item::Item;
 use format::Format;
@@ -34,9 +33,7 @@ impl Group {
     }
 
     pub fn from_path<P: AsRef<Path>>(path: P) -> Result<Group, GroupErr> {
-        let mut s = String::new();
-        File::open(path)?.read_to_string(&mut s)?;
-        s.parse()
+        read_to_string(path)?.parse()
     }
 
     pub fn generate(&self, amount: usize) -> Vec<(&Item, usize)> {

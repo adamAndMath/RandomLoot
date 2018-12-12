@@ -8,4 +8,4 @@ impl Prop for String {}
 
 impl Prop for f32 {}
 
-impl Prop for i32 {}
+impl Prop for isize {}

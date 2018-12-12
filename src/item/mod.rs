@@ -3,7 +3,7 @@ mod prop;
 use std::collections::HashMap;
 use std::fmt;
 
-use self::prop::Prop;
+pub use self::prop::Prop;
 
 #[derive(Debug)]
 pub struct Item(HashMap<String, Box<Prop>>);

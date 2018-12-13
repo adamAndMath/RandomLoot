@@ -1,4 +1,5 @@
 use std::str::FromStr;
+use std::fmt::{ self, Display, Formatter };
 use item::Prop;
 use super::{
     prelude::*,
@@ -44,6 +45,18 @@ impl FromStr for Type {
     }
 }
 
+impl Display for Type {
+    fn fmt(&self, f: &mut Formatter) -> fmt::Result {
+        match self {
+            Type::Bool(yes, no) if yes == "true" && no == "false" => write!(f, "bool"),
+            Type::Bool(yes, no) => write!(f, "bool[{}, {}]", yes, no),
+            Type::Int(unit) => write!(f, "int{}", unit),
+            Type::Float(unit) => write!(f, "float{}", unit),
+            Type::Str => write!(f, "str"),
+        }
+    }
+}
+
 impl Parser for Type {
     type Output = Box<Prop>;
     fn parse(&self, s: &str) -> Result<Box<Prop>> {
@@ -57,9 +70,25 @@ impl Parser for Type {
                     unimplemented!()
                     //Err(Box::new(format!("\"{}\" is not a bool", s)))
                 },
-            Type::Int(unit) => unit.parse(s),
-            Type::Float(unit) => unit.parse(s),
+            Type::Int(unit) => unit.parse(s).map(|v|Box::new(v) as Box<Prop>),
+            Type::Float(unit) => unit.parse(s).map(|v|Box::new(v) as Box<Prop>),
             Type::Str => Ok(Box::new(s.to_owned()))
+        }
+    }
+}
+
+impl Type {
+    pub fn to_string(&self, p: &Box<Prop>) -> String {
+        match self {
+            Type::Bool(yes, no) =>
+                match p.as_any().downcast_ref::<bool>() {
+                    Some(true) => yes.to_owned(),
+                    Some(false) => no.to_owned(),
+                    None => unreachable!(),
+                },
+            Type::Int(unit) => unit.to_string(p.as_any().downcast_ref().unwrap()),
+            Type::Float(unit) => unit.to_string(p.as_any().downcast_ref().unwrap()),
+            Type::Str => p.as_any().downcast_ref::<String>().unwrap().to_owned(),
         }
     }
 }

@@ -1,11 +1,24 @@
 use std::fmt;
+use std::any::Any;
 
-pub trait Prop: fmt::Display + fmt::Debug {}
+pub trait Prop: fmt::Display + fmt::Debug {
+    fn as_any(&self) -> &dyn Any;
+}
 
-impl Prop for bool {}
+macro_rules! impl_prop {
+    ($($T:ty,)*) => (impl_prop!{$($T),*});
+    ($($T:ty),*) => {
+        $(impl Prop for $T {
+            fn as_any(&self) -> &dyn Any {
+                self
+            }
+        })*
+    };
+}
 
-impl Prop for String {}
-
-impl Prop for f32 {}
-
-impl Prop for isize {}
+impl_prop!{
+    bool,
+    String,
+    f32,
+    isize,
+}

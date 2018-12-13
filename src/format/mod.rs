@@ -18,6 +18,7 @@ pub use self::{
 
 use item::Item;
 use std::str::FromStr;
+use std::fmt::{ self, Display, Formatter };
 
 #[derive(Debug)]
 pub struct Format(Vec<Var>);
@@ -27,6 +28,20 @@ impl FromStr for Format {
 
     fn from_str(s: &str) -> Result<Format> {
         s.split(";").map(Var::from_str).collect::<Result<_>>().map(Format)
+    }
+}
+
+impl Display for Format {
+    fn fmt(&self, f: &mut Formatter) -> fmt::Result {
+        if !self.0.is_empty() {
+            write!(f, "{}", self.0[0])?;
+
+            for v in &self.0[1..] {
+                write!(f, "; {}", v)?;
+            }
+        }
+
+        Ok(())
     }
 }
 
@@ -49,6 +64,7 @@ impl Format {
     }
 
     pub fn to_string(&self, item: &Item) -> String {
-        format!("{}, {} lb, {} cp", item.get("name").unwrap(), item.get("weight").unwrap(), item.get("price").unwrap())
+        self.0.iter().map(|v|v.ty.to_string(item.get(&v.name).unwrap())).collect::<Vec<String>>().join(", ")
+        //format!("{}, {} lb, {} cp", item.get("name").unwrap(), item.get("weight").unwrap(), item.get("price").unwrap())
     }
 }

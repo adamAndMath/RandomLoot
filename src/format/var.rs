@@ -1,4 +1,5 @@
 use std::str::FromStr;
+use std::fmt::{ self, Display, Formatter };
 use super::{
     prelude::*,
     Type,
@@ -24,5 +25,11 @@ impl FromStr for Var {
         let name = iter.next().unwrap().to_owned();
         let ty = iter.next().unwrap().parse()?;
         Ok(Var::new(name, ty))
+    }
+}
+
+impl Display for Var {
+    fn fmt(&self, f: &mut Formatter) -> fmt::Result {
+        write!(f, "{}: {}", self.name, self.ty)
     }
 }

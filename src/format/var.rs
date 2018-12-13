@@ -1,14 +1,22 @@
 use std::str::FromStr;
 use std::fmt::{ self, Display, Formatter };
 use super::{
-    prelude::*,
+    Parser,
     Type,
+    TypeError,
 };
 
 #[derive(Debug)]
 pub struct Var {
     pub name: String,
     pub ty: Type,
+}
+
+#[derive(Debug)]
+pub enum VarError {
+    MissingName,
+    MissingType,
+    Type(TypeError),
 }
 
 impl Var {
@@ -18,12 +26,12 @@ impl Var {
 }
 
 impl FromStr for Var {
-    type Err = FormatErr;
+    type Err = VarError;
 
-    fn from_str(s: &str) -> Result<Var> {
+    fn from_str(s: &str) -> Result<Var, VarError> {
         let mut iter = s.splitn(2, ":").map(|s|s.trim());
-        let name = iter.next().unwrap().to_owned();
-        let ty = iter.next().unwrap().parse()?;
+        let name = iter.next().ok_or(VarError::MissingName)?.to_owned();
+        let ty = iter.next().ok_or(VarError::MissingType)?.parse().map_err(VarError::Type)?;
         Ok(Var::new(name, ty))
     }
 }

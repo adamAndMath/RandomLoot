@@ -1,11 +1,10 @@
 use std::str::FromStr;
-use std::error::Error;
 use std::fmt::{ self, Display, Formatter };
 use std::ops::Mul;
 use item::Prop;
-use super::prelude::*;
+use super::Parser;
 
-pub trait Num: 'static + Prop + FromStr + PartialOrd + PartialEq + Mul<Output=Self> + Copy where Self::Err: Error {
+pub trait Num: 'static + Prop + FromStr + PartialOrd + PartialEq + Mul<Output=Self> + Copy {
     fn one() -> Self;
     fn match_unit(&self, unit: &Self) -> Option<Self>;
     fn force_match(&self, unit: &Self) -> Option<Self>;
@@ -40,26 +39,31 @@ impl Num for f32 {
 }
 
 #[derive(Debug)]
-pub struct Unit<T: Num>(Vec<(String, T)>) where T::Err: Error;
+pub struct Unit<T: Num>(Vec<(String, T)>);
 
-impl<T: Num> FromStr for Unit<T> where T::Err: Error {
-    type Err = FormatErr;
+#[derive(Debug)]
+pub enum UnitError<T: Num> {
+    NotBrackets,
+    MissingName,
+    MissingValue,
+    ParseError(T::Err),
+}
 
-    fn from_str(s: &str) -> Result<Unit<T>> {
+impl<T: Num> FromStr for Unit<T> {
+    type Err = UnitError<T>;
+
+    fn from_str(s: &str) -> Result<Unit<T>, UnitError<T>> {
         if s.is_empty() {
             Ok(Unit(vec![]))
         } else if s.starts_with("[") && s.ends_with("]") {
             let s = &s[1..s.len()-1];
             if s.contains(",") {
                 s.split(",").map(|s| {
-                    let v = s.splitn(2, "=").collect::<Vec<_>>();
-                    if v.len() != 2 {
-                        unimplemented!("{:?}", v)
-                    }
-                    let name = v[0].trim().to_owned();
-                    let size = v[1].trim().parse::<T>()?;
+                    let mut v = s.splitn(2, "=");
+                    let name = v.next().ok_or(UnitError::MissingName)?.trim().to_owned();
+                    let size = v.next().ok_or(UnitError::MissingValue)?.trim().parse::<T>().map_err(UnitError::ParseError)?;
                     Ok((name, size))
-                }).collect::<Result<Vec<_>>>().map(|mut v|{
+                }).collect::<Result<Vec<_>, UnitError<T>>>().map(|mut v|{
                     v.sort_by(|a, b|a.1.partial_cmp(&b.1).unwrap());
                     Unit(v)
                 })
@@ -72,12 +76,12 @@ impl<T: Num> FromStr for Unit<T> where T::Err: Error {
                 }
             }
         } else {
-            unimplemented!()
+            Err(UnitError::NotBrackets)
         }
     }
 }
 
-impl<T: Num> Display for Unit<T> where T::Err: Error {
+impl<T: Num> Display for Unit<T> {
     fn fmt(&self, f: &mut Formatter) -> fmt::Result {
         if self.0.is_empty() {
             Ok(())
@@ -95,9 +99,10 @@ impl<T: Num> Display for Unit<T> where T::Err: Error {
     }
 }
 
-impl<T: Num> Parser for Unit<T> where T::Err: Error {
+impl<T: Num> Parser for Unit<T> {
     type Output = T;
-    fn parse(&self, s: &str) -> Result<T> {
+    type Err = T::Err;
+    fn parse(&self, s: &str) -> Result<T, T::Err> {
         let unit = self.0.iter().filter(|(u,_)|s.ends_with(u)).next();
 
         Ok(if let Some((u,m)) = unit {
@@ -108,7 +113,7 @@ impl<T: Num> Parser for Unit<T> where T::Err: Error {
     }
 }
 
-impl<T: Num> Unit<T> where T::Err: Error {
+impl<T: Num> Unit<T> {
     pub fn to_string(&self, v: &T) -> String {
         self.0.iter().rev().filter_map(|(n, u)|v.match_unit(u).map(|v|format!("{} {}", v, n))).next()
             .or_else(||self.0.last().and_then(|(n, u)|v.force_match(u).map(|v|format!("{} {}", v, n))))

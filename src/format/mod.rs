@@ -3,17 +3,11 @@ pub mod var;
 pub mod ty;
 pub mod unit;
 
-pub mod prelude {
-    pub use super::parse::Parser;
-    pub type Result<T> = std::result::Result<T, FormatErr>;
-    pub type FormatErr = Box<std::error::Error>;
-}
-
 pub use self::{
-    prelude::*,
-    var::Var,
-    ty::Type,
-    unit::Unit,
+    parse::Parser,
+    var::*,
+    ty::*,
+    unit::*,
 };
 
 use item::Item;
@@ -24,10 +18,10 @@ use std::fmt::{ self, Display, Formatter };
 pub struct Format(Vec<Var>);
 
 impl FromStr for Format {
-    type Err = FormatErr;
+    type Err = VarError;
 
-    fn from_str(s: &str) -> Result<Format> {
-        s.split(";").map(Var::from_str).collect::<Result<_>>().map(Format)
+    fn from_str(s: &str) -> Result<Format, VarError> {
+        s.split(";").map(Var::from_str).collect::<Result<_, _>>().map(Format)
     }
 }
 
@@ -46,25 +40,24 @@ impl Display for Format {
 }
 
 impl Format {
-    pub fn parse(&self, s: &str) -> Result<(usize, Item)> {
+    pub fn parse(&self, s: &str) -> Result<(usize, Item), ParseErr> {
         let args: Vec<&str> = s.split(';').map(|s| s.trim()).collect();
         let mut item = Item::new();
 
         if args.len() != self.0.len() + 1 {
-            unimplemented!();
+            return Err(ParseErr::ParameterCount(args.len()));
         }
 
         for (var, arg) in self.0.iter().zip(&args) {
             item.insert(var.name.to_owned(), var.ty.parse(arg)?)
         }
 
-        let rand = args[args.len()-1].parse::<usize>()?;
+        let rand = args[args.len()-1].parse::<usize>().map_err(ParseErr::Rand)?;
 
         Ok((rand, item))
     }
 
     pub fn to_string(&self, item: &Item) -> String {
         self.0.iter().map(|v|v.ty.to_string(item.get(&v.name).unwrap())).collect::<Vec<String>>().join(", ")
-        //format!("{}, {} lb, {} cp", item.get("name").unwrap(), item.get("weight").unwrap(), item.get("price").unwrap())
     }
 }

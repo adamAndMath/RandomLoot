@@ -1,25 +1,28 @@
 use std::io;
 use std::error::Error;
 use std::fmt;
-use format::FormatErr;
+use format::{
+    VarError,
+    ParseErr,
+};
 
 #[derive(Debug)]
 pub enum GroupErr {
     EmptyFile,
     NoItems,
     File(io::Error),
-    FormatParse(FormatErr),
-    ItemParse(Vec<(usize, FormatErr)>),
+    FormatParse(VarError),
+    ItemParse(Vec<(usize, ParseErr)>),
 }
 
-impl From<FormatErr> for GroupErr {
-    fn from(e: FormatErr) -> Self {
+impl From<VarError> for GroupErr {
+    fn from(e: VarError) -> Self {
         GroupErr::FormatParse(e)
     }
 }
 
-impl From<Vec<(usize, FormatErr)>> for GroupErr {
-    fn from(e: Vec<(usize, FormatErr)>) -> Self {
+impl From<Vec<(usize, ParseErr)>> for GroupErr {
+    fn from(e: Vec<(usize, ParseErr)>) -> Self {
         GroupErr::ItemParse(e)
     }
 }

@@ -1,3 +1,4 @@
+use test::Bencher;
 use std::collections::HashMap;
 use quantifier::Quantifier;
 
@@ -31,4 +32,14 @@ fn quantifier_iter() {
     let e = quantities.into_iter().collect::<HashMap<_,_>>();
 
     assert_eq!(t, e);
+}
+
+#[bench]
+fn quantifier_1m_no_repeates(b: &mut Bencher) {
+    b.iter(||[0..1000000].into_iter().collect::<Quantifier<_>>())
+}
+
+#[bench]
+fn quantifier_1m_only_repeates(b: &mut Bencher) {
+    b.iter(||[0..1000000].into_iter().map(|_|17420).collect::<Quantifier<_>>())
 }

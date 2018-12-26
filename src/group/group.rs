@@ -2,9 +2,11 @@ use std::path::Path;
 use std::fs::read_to_string;
 use std::str::FromStr;
 
+use rand::Rng;
+use rand::distributions::WeightedIndex;
+
 use item::Item;
 use format::Format;
-use generator::Generator;
 use quantifier::Quantifier;
 use super::GroupErr;
 
@@ -12,24 +14,13 @@ use super::GroupErr;
 pub struct Group {
     format: Format,
     items: Vec<(usize, Item)>,
-    generator: Generator<usize>,
+    generator: WeightedIndex<usize>,
 }
 
 impl Group {
     pub fn new(format: Format, items: Vec<(usize, Item)>) -> Result<Self, GroupErr> {
-        if items.is_empty() {
-            return Err(GroupErr::NoItems)
-        }
-
-        let generator = (0..items.len()).map(|i| (items[i].0, i)).collect();
-        Ok(Group { format: format, items: items, generator: generator })
-    }
-
-    pub fn build<'a, I: Iterator<Item = (usize, &'a str)>>(header: &str, lines: I) -> Result<Group, GroupErr> {
-        let format: Format = header.parse()?;
-        let items: Vec<_> = collect_result(lines.map(|(i, s)| format.parse(s).map_err(|e| (i, e))))?;
-
-        Self::new(format, items)
+        let generator = WeightedIndex::new(items.iter().map(|(i,_)|*i))?;
+        Ok(Group { format, items, generator: generator })
     }
 
     pub fn from_path<P: AsRef<Path>>(path: P) -> Result<Group, GroupErr> {
@@ -37,7 +28,7 @@ impl Group {
     }
 
     pub fn generate(&self, amount: usize) -> Vec<(&Item, usize)> {
-        let quantifier: Quantifier<usize> = self.generator.generate().take(amount).map(|i| *i).collect();
+        let quantifier = rand::thread_rng().sample_iter(&self.generator).take(amount).collect::<Quantifier<_>>();
         quantifier.into_iter().map(|(i, q)| (&self.items[i].1, q)).collect()
     }
 
@@ -53,8 +44,11 @@ impl FromStr for Group {
 
     fn from_str(s: &str) -> Result<Self, GroupErr> {
         let mut lines = s.lines().enumerate();
-        let header = lines.next().ok_or(GroupErr::EmptyFile)?;
-        Group::build(header.1, lines)
+        let (_, header) = lines.next().ok_or(GroupErr::EmptyFile)?;
+
+        let format = header.parse::<Format>()?;
+        let items = collect_result(lines.map(|(i, s)| format.parse(s).map_err(|e| (i, e))))?;
+        Group::new(format, items)
     }
 }
 

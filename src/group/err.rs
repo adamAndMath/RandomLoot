@@ -1,6 +1,7 @@
 use std::io;
 use std::error::Error;
 use std::fmt;
+use rand::distributions::WeightedError;
 use format::{
     VarError,
     ParseErr,
@@ -9,10 +10,16 @@ use format::{
 #[derive(Debug)]
 pub enum GroupErr {
     EmptyFile,
-    NoItems,
+    WeightError(WeightedError),
     File(io::Error),
     FormatParse(VarError),
     ItemParse(Vec<(usize, ParseErr)>),
+}
+
+impl From<WeightedError> for GroupErr {
+    fn from(e: WeightedError) -> Self {
+        GroupErr::WeightError(e)
+    }
 }
 
 impl From<VarError> for GroupErr {
@@ -37,7 +44,7 @@ impl fmt::Display for GroupErr {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         match self {
             &GroupErr::EmptyFile => write!(f, "File is empty"),
-            &GroupErr::NoItems => write!(f, "No items"),
+            &GroupErr::WeightError(e) => write!(f, "{}", e),
             &GroupErr::File(_) => write!(f, "Failed to open file"),
             &GroupErr::FormatParse(_) => write!(f, "Failed to parse format"),
             &GroupErr::ItemParse(ref v) => {
@@ -56,11 +63,11 @@ impl fmt::Display for GroupErr {
 impl Error for GroupErr {
     fn description(&self) -> &str {
         match self {
-            &GroupErr::EmptyFile => "File is empty",
-            &GroupErr::NoItems => "No items",
-            &GroupErr::File(_) => "Failed to open file",
-            &GroupErr::FormatParse(_) => "Failed to parse format",
-            &GroupErr::ItemParse(_) => "Failed to parse items",
+            GroupErr::EmptyFile => "File is empty",
+            GroupErr::WeightError(e) => e.description(),
+            GroupErr::File(_) => "Failed to open file",
+            GroupErr::FormatParse(_) => "Failed to parse format",
+            GroupErr::ItemParse(_) => "Failed to parse items",
         }
     }
 }

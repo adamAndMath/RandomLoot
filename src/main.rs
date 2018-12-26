@@ -7,7 +7,6 @@ mod tests;
 
 mod item;
 mod format;
-pub mod generator;
 pub mod quantifier;
 pub mod group;
 

@@ -1,5 +1,8 @@
 extern crate rand;
 
+#[cfg(test)]
+mod tests;
+
 mod item;
 mod format;
 pub mod generator;

@@ -49,35 +49,3 @@ impl<E: Eq + Hash> IntoIterator for Quantifier<E> {
         self.map.into_iter()
     }
 }
-
-#[test]
-fn quantifier_obj() {
-    let mut q = Quantifier::<&str>::new();
-    q.add("John");
-    q.add("Rick");
-    q.add("Carry");
-    q.add("Carry");
-    q.add("John");
-    q.add("John");
-
-    let q = q;
-
-    assert_eq!(q.get(&"John"), Some(&3));
-    assert_eq!(q.get(&"Carry"), Some(&2));
-    assert_eq!(q.get(&"Rick"), Some(&1));
-    assert_eq!(q.get(&"Not in"), None);
-    assert_eq!(q.get(&"Rick"), Some(&1));
-    assert_eq!(q.get(&"Carry"), Some(&2));
-    assert_eq!(q.get(&"John"), Some(&3));
-}
-
-#[test]
-fn quantifier_iter() {
-    let data = vec![1, 2, 3, 4, 2, 3, 4, 3, 4, 4];
-    let quantities = vec![(1, 1), (2, 2), (3, 3), (4, 4)];
-    let q: Quantifier<_> = data.into_iter().collect();
-    let t: HashMap<_, _> = q.into_iter().collect();
-    let e: HashMap<_, _> = quantities.into_iter().collect();
-
-    assert_eq!(t, e);
-}

@@ -1,7 +1,6 @@
 use std::str::FromStr;
 use std::fmt::{ self, Display, Formatter };
 use super::{
-    Parser,
     Type,
     TypeError,
 };

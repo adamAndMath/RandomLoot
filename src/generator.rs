@@ -3,7 +3,7 @@ use std::iter::FromIterator;
 use std::iter::IntoIterator;
 use std::iter::FusedIterator;
 use rand;
-use rand::ThreadRng;
+use rand::prelude::ThreadRng;
 use rand::Rng;
 
 /// Returns random elements from a collection based on the weight of the element.

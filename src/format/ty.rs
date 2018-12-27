@@ -3,7 +3,7 @@ use item::Prop;
 use std::fmt::{self, Display, Formatter};
 use std::str::FromStr;
 
-#[derive(Debug)]
+#[derive(Debug, PartialEq)]
 pub enum Type {
     Bool(String, String),
     Int(Unit<isize>),
@@ -11,7 +11,7 @@ pub enum Type {
     Str,
 }
 
-#[derive(Debug)]
+#[derive(Debug, PartialEq)]
 pub enum TypeError {
     BoolLabelAmount(usize),
     DisallawedBrackets,

@@ -1,18 +1,16 @@
+#[macro_use]
+pub mod letn_macro;
+
 pub mod parse;
-pub mod var;
 pub mod ty;
 pub mod unit;
+pub mod var;
 
-pub use self::{
-    parse::Parser,
-    var::*,
-    ty::*,
-    unit::*,
-};
+pub use self::{parse::Parser, ty::*, unit::*, var::*};
 
 use item::Item;
+use std::fmt::{self, Display, Formatter};
 use std::str::FromStr;
-use std::fmt::{ self, Display, Formatter };
 
 #[derive(Debug)]
 pub struct Format(Vec<Var>);
@@ -21,7 +19,10 @@ impl FromStr for Format {
     type Err = VarError;
 
     fn from_str(s: &str) -> Result<Format, VarError> {
-        s.split(";").map(Var::from_str).collect::<Result<_, _>>().map(Format)
+        s.split(";")
+            .map(Var::from_str)
+            .collect::<Result<_, _>>()
+            .map(Format)
     }
 }
 
@@ -52,12 +53,18 @@ impl Format {
             item.insert(var.name.to_owned(), var.ty.parse(arg)?)
         }
 
-        let rand = args[args.len()-1].parse::<usize>().map_err(ParseErr::Rand)?;
+        let rand = args[args.len() - 1]
+            .parse::<usize>()
+            .map_err(ParseErr::Rand)?;
 
         Ok((rand, item))
     }
 
     pub fn to_string(&self, item: &Item) -> String {
-        self.0.iter().map(|v|v.ty.to_string(item.get(&v.name).unwrap())).collect::<Vec<String>>().join(", ")
+        self.0
+            .iter()
+            .map(|v| v.ty.to_string(item.get(&v.name).unwrap()))
+            .collect::<Vec<String>>()
+            .join(", ")
     }
 }

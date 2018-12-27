@@ -1,11 +1,7 @@
-use std::str::FromStr;
-use std::fmt::{ self, Display, Formatter };
+use super::{Parser, Unit, UnitError};
 use item::Prop;
-use super::{
-    Parser,
-    Unit,
-    UnitError,
-};
+use std::fmt::{self, Display, Formatter};
+use std::str::FromStr;
 
 #[derive(Debug)]
 pub enum Type {
@@ -18,6 +14,7 @@ pub enum Type {
 #[derive(Debug)]
 pub enum TypeError {
     BoolLabelAmount(usize),
+    DisallawedBrackets,
     ExpectedBrackets,
     UndefinedType(String),
     IntUnit(UnitError<isize>),
@@ -37,30 +34,41 @@ impl FromStr for Type {
     type Err = TypeError;
 
     fn from_str(s: &str) -> Result<Type, TypeError> {
-        if s.starts_with("bool") {
-            let s = s[4..].trim();
-            if s.is_empty() {
-                Ok(Type::Bool("true".to_owned(), "false".to_owned()))
-            } else if s.starts_with("[") && s.ends_with("]") {
-                let labels = s[1..s.len()-1].split(",").map(|s|s.trim()).collect::<Vec<_>>();
+        letn!(type_decl, args = s.splitn(2, '['));
+        let type_decl = type_decl
+            .ok_or(TypeError::UndefinedType(s.to_owned()))?
+            .trim();
+
+        let args = args
+            .map(|args| {
+                letn!(args, rest = args.trim().splitn(2, ']'));
+                match rest {
+                    Some(rest) if !rest.trim().is_empty() => Err(TypeError::ExpectedBrackets),
+                    None => Err(TypeError::ExpectedBrackets),
+                    _ => Ok(args.unwrap().trim()),
+                }
+            })
+            .transpose()?;
+
+        Ok(match (type_decl, args) {
+            ("bool", None) => Type::Bool("true".to_owned(), "false".to_owned()),
+            ("bool", Some(args)) => {
+                let labels = args.split(",").map(|s| s.trim()).collect::<Vec<_>>();
                 if labels.len() != 2 {
                     return Err(TypeError::BoolLabelAmount(labels.len()));
                 }
                 let yes = labels[0].to_owned();
                 let no = labels[1].to_owned();
-                Ok(Type::Bool(yes, no))
-            } else {
-                Err(TypeError::ExpectedBrackets)
+                Type::Bool(yes, no)
             }
-        } else if s.starts_with("int") {
-            s[3..].trim().parse().map(Type::Int).map_err(TypeError::IntUnit)
-        } else if s.starts_with("float") {
-            s[5..].trim().parse().map(Type::Float).map_err(TypeError::FloatUnit)
-        } else if s.starts_with("str") {
-            Ok(Type::Str)
-        } else {
-            Err(TypeError::UndefinedType(s.to_owned()))
-        }
+            ("int", None) => Type::Int(Unit::default()),
+            ("int", Some(args)) => Type::Int(args.parse().map_err(TypeError::IntUnit)?),
+            ("float", None) => Type::Float(Unit::default()),
+            ("float", Some(args)) => Type::Float(args.parse().map_err(TypeError::FloatUnit)?),
+            ("str", None) => Type::Str,
+            ("str", Some(_)) => return Err(TypeError::DisallawedBrackets),
+            (ty, _) => return Err(TypeError::UndefinedType(ty.to_owned())),
+        })
     }
 }
 
@@ -79,7 +87,9 @@ impl Display for Type {
 impl Display for ParseErr {
     fn fmt(&self, f: &mut Formatter) -> fmt::Result {
         match self {
-            ParseErr::UndefinedLabel(s, labels) => write!(f, "Found \"{}\", but expected {}", s, labels.join(", ")),
+            ParseErr::UndefinedLabel(s, labels) => {
+                write!(f, "Found \"{}\", but expected {}", s, labels.join(", "))
+            }
             ParseErr::Int(e) => e.fmt(f),
             ParseErr::Float(e) => e.fmt(f),
             ParseErr::Rand(e) => e.fmt(f),
@@ -93,17 +103,27 @@ impl Parser for Type {
     type Err = ParseErr;
     fn parse(&self, s: &str) -> Result<Box<Prop>, ParseErr> {
         match self {
-            Type::Bool(yes, no) =>
+            Type::Bool(yes, no) => {
                 if s == yes {
                     Ok(Box::new(true))
                 } else if s == no {
                     Ok(Box::new(false))
                 } else {
-                    Err(ParseErr::UndefinedLabel(s.to_owned(), vec![yes.to_owned(), no.to_owned()]))
-                },
-            Type::Int(unit) => unit.parse(s).map(|v|Box::new(v) as Box<Prop>).map_err(ParseErr::Int),
-            Type::Float(unit) => unit.parse(s).map(|v|Box::new(v) as Box<Prop>).map_err(ParseErr::Float),
-            Type::Str => Ok(Box::new(s.to_owned()))
+                    Err(ParseErr::UndefinedLabel(
+                        s.to_owned(),
+                        vec![yes.to_owned(), no.to_owned()],
+                    ))
+                }
+            }
+            Type::Int(unit) => unit
+                .parse(s)
+                .map(|v| Box::new(v) as Box<Prop>)
+                .map_err(ParseErr::Int),
+            Type::Float(unit) => unit
+                .parse(s)
+                .map(|v| Box::new(v) as Box<Prop>)
+                .map_err(ParseErr::Float),
+            Type::Str => Ok(Box::new(s.to_owned())),
         }
     }
 }
@@ -111,12 +131,11 @@ impl Parser for Type {
 impl Type {
     pub fn to_string(&self, p: &Box<Prop>) -> String {
         match self {
-            Type::Bool(yes, no) =>
-                match p.as_any().downcast_ref::<bool>() {
-                    Some(true) => yes.to_owned(),
-                    Some(false) => no.to_owned(),
-                    None => unreachable!(),
-                },
+            Type::Bool(yes, no) => match p.as_any().downcast_ref::<bool>() {
+                Some(true) => yes.to_owned(),
+                Some(false) => no.to_owned(),
+                None => unreachable!(),
+            },
             Type::Int(unit) => unit.to_string(p.as_any().downcast_ref().unwrap()),
             Type::Float(unit) => unit.to_string(p.as_any().downcast_ref().unwrap()),
             Type::Str => p.as_any().downcast_ref::<String>().unwrap().to_owned(),

@@ -45,7 +45,7 @@ impl Num for f32 {
 }
 
 #[derive(Debug, PartialEq, Eq)]
-pub struct Unit<T: Num>(Vec<(String, T)>);
+pub struct Unit<T: Num>(pub Vec<(String, T)>);
 
 #[derive(Debug, PartialEq, Eq)]
 pub enum UnitError<T: Num> {

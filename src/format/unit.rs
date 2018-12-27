@@ -44,10 +44,10 @@ impl Num for f32 {
     }
 }
 
-#[derive(Debug)]
+#[derive(Debug, PartialEq, Eq)]
 pub struct Unit<T: Num>(Vec<(String, T)>);
 
-#[derive(Debug)]
+#[derive(Debug, PartialEq, Eq)]
 pub enum UnitError<T: Num> {
     NotBrackets,
     MissingName,

@@ -4,6 +4,7 @@ use std::str::FromStr;
 
 use rand::Rng;
 use rand::distributions::WeightedIndex;
+use rayon::prelude::*;
 
 use item::Item;
 use format::Format;
@@ -28,7 +29,7 @@ impl Group {
     }
 
     pub fn generate(&self, amount: usize) -> Vec<(&Item, usize)> {
-        let quantifier = rand::thread_rng().sample_iter(&self.generator).take(amount).collect::<Quantifier<_>>();
+        let quantifier = rayon::iter::repeatn((), amount).map(|_|rand::thread_rng().sample(&self.generator)).collect::<Quantifier<_>>();
         quantifier.into_iter().map(|(i, q)| (&self.items[i].1, q)).collect()
     }
 

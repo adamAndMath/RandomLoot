@@ -1,4 +1,5 @@
 use test::Bencher;
+use rayon::prelude::*;
 use std::collections::HashMap;
 use quantifier::Quantifier;
 
@@ -36,10 +37,10 @@ fn quantifier_iter() {
 
 #[bench]
 fn quantifier_1m_no_repeates(b: &mut Bencher) {
-    b.iter(||[0..1000000].into_iter().collect::<Quantifier<_>>())
+    b.iter(||vec![0..1000000].into_par_iter().collect::<Quantifier<_>>())
 }
 
 #[bench]
 fn quantifier_1m_only_repeates(b: &mut Bencher) {
-    b.iter(||[0..1000000].into_iter().map(|_|17420).collect::<Quantifier<_>>())
+    b.iter(||vec![0..1000000].into_par_iter().map(|_|17420).collect::<Quantifier<_>>())
 }

@@ -1,4 +1,5 @@
 #![feature(test, transpose_result)]
+extern crate rayon;
 extern crate rand;
 extern crate test;
 

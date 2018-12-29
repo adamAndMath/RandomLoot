@@ -1,7 +1,9 @@
+use rayon::iter::{ ParallelIterator, IntoParallelIterator, FromParallelIterator };
 use std::collections::hash_map::IntoIter;
 use std::collections::HashMap;
 use std::iter::FromIterator;
 use std::hash::Hash;
+use std::sync::mpsc::channel;
 
 /// Quantifies data by equality.
 #[derive(Debug, Default)]
@@ -22,6 +24,13 @@ impl<E: Eq + Hash> Quantifier<E> {
         self.map.insert(e, v);
     }
 
+    ///Increases the quantity of e by a given amount.
+    #[inline]
+    pub fn add_amount(&mut self, e: E, amount: usize) {
+        let v = self.map.get(&e).map_or(amount, |v| *v + amount);
+        self.map.insert(e, v);
+    }
+
     ///Reterns the quantity of e if e was seen.
     #[inline]
     pub fn get(&self, e: &E) -> Option<&usize> {
@@ -38,6 +47,14 @@ impl<E: Eq + Hash> FromIterator<E> for Quantifier<E> {
         }
 
         quantifier
+    }
+}
+
+impl<E: Sync + Send + Eq + Hash> FromParallelIterator<E> for Quantifier<E> {
+    fn from_par_iter<I: IntoParallelIterator<Item = E>>(iter: I) -> Self {
+        let (sender, receiver) = channel();
+        iter.into_par_iter().for_each_with(sender, |tx, e| tx.send(e).unwrap());
+        receiver.into_iter().collect()
     }
 }
 

@@ -1,6 +1,7 @@
 use test::Bencher;
 use std::collections::HashMap;
 use quantifier::Quantifier;
+use test::black_box;
 
 #[test]
 fn quantifier_obj() {
@@ -36,10 +37,10 @@ fn quantifier_iter() {
 
 #[bench]
 fn quantifier_1m_no_repeates(b: &mut Bencher) {
-    b.iter(||[0..1000000].into_iter().collect::<Quantifier<_>>())
+    b.iter(||(0..black_box(1000000)).into_iter().collect::<Quantifier<_>>())
 }
 
 #[bench]
 fn quantifier_1m_only_repeates(b: &mut Bencher) {
-    b.iter(||[0..1000000].into_iter().map(|_|17420).collect::<Quantifier<_>>())
+    b.iter(||(0..black_box(1000000)).into_iter().map(|_|17420).collect::<Quantifier<_>>())
 }

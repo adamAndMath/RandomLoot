@@ -7,7 +7,7 @@ use rand::distributions::WeightedIndex;
 
 use item::Item;
 use format::Format;
-use quantifier::Quantifier;
+use quantifier_vec::Quantifier;
 use super::GroupErr;
 
 #[derive(Debug)]
@@ -28,7 +28,7 @@ impl Group {
     }
 
     pub fn generate(&self, amount: usize) -> Vec<(&Item, usize)> {
-        let quantifier = rand::thread_rng().sample_iter(&self.generator).take(amount).collect::<Quantifier<_>>();
+        let quantifier = rand::thread_rng().sample_iter(&self.generator).take(amount).collect::<Quantifier>();
         quantifier.into_iter().map(|(i, q)| (&self.items[i].1, q)).collect()
     }
 

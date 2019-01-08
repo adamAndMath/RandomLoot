@@ -9,6 +9,7 @@ mod format;
 pub mod group;
 mod item;
 pub mod quantifier;
+pub mod quantifier_vec;
 
 use group::Group;
 use std::env;

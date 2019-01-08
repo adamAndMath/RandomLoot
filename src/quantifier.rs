@@ -18,8 +18,7 @@ impl<E: Eq + Hash> Quantifier<E> {
     ///Increases the quantity of e by one.
     #[inline]
     pub fn add(&mut self, e: E) {
-        let v = self.map.get(&e).map_or(1, |v| *v + 1);
-        self.map.insert(e, v);
+        *self.map.entry(e).or_insert(0) += 1;
     }
 
     ///Reterns the quantity of e if e was seen.
@@ -29,14 +28,18 @@ impl<E: Eq + Hash> Quantifier<E> {
     }
 }
 
+impl<E: Eq + Hash> Extend<E> for Quantifier<E> {
+    fn extend<I: IntoIterator<Item = E>>(&mut self, iter: I) {
+        for e in iter {
+            self.add(e);
+        }
+    }
+}
+
 impl<E: Eq + Hash> FromIterator<E> for Quantifier<E> {
     fn from_iter<I: IntoIterator<Item = E>>(iter: I) -> Self {
         let mut quantifier = Quantifier::new();
-
-        for e in iter {
-            quantifier.add(e);
-        }
-
+        quantifier.extend(iter);
         quantifier
     }
 }

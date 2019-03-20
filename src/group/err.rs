@@ -43,11 +43,11 @@ impl From<io::Error> for GroupErr {
 impl fmt::Display for GroupErr {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         match self {
-            &GroupErr::EmptyFile => write!(f, "File is empty"),
-            &GroupErr::WeightError(e) => write!(f, "{}", e),
-            &GroupErr::File(_) => write!(f, "Failed to open file"),
-            &GroupErr::FormatParse(_) => write!(f, "Failed to parse format"),
-            &GroupErr::ItemParse(ref v) => {
+            GroupErr::EmptyFile => write!(f, "File is empty"),
+            GroupErr::WeightError(e) => write!(f, "{}", e),
+            GroupErr::File(_) => write!(f, "Failed to open file"),
+            GroupErr::FormatParse(_) => write!(f, "Failed to parse format"),
+            GroupErr::ItemParse(ref v) => {
                 writeln!(f, "Failed to parse the following items")?;
                 
                 for &(i, ref e) in v {

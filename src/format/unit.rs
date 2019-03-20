@@ -1,11 +1,9 @@
 use super::Parser;
-use item::Prop;
 use std::fmt::{self, Display, Formatter};
 use std::ops::Mul;
 use std::str::FromStr;
 
-pub trait Num:
-    'static + Prop + FromStr + PartialOrd + PartialEq + Mul<Output = Self> + Copy
+pub trait Num: Display + FromStr + PartialOrd + PartialEq + Mul<Output = Self> + Copy
 {
     fn one() -> Self;
     fn match_unit(&self, unit: &Self) -> Option<Self>;

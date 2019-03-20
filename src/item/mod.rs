@@ -6,7 +6,7 @@ use std::fmt;
 pub use self::prop::Prop;
 
 #[derive(Debug)]
-pub struct Item(HashMap<String, Box<Prop>>);
+pub struct Item(HashMap<String, Prop>);
 
 impl fmt::Display for Item {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
@@ -23,11 +23,11 @@ impl Item {
         Item(HashMap::new())
     }
 
-    pub fn insert(&mut self, k: String, v: Box<Prop>) {
+    pub fn insert(&mut self, k: String, v: Prop) {
         self.0.insert(k, v);
     }
 
-    pub fn get(&self, k: &str) -> Option<&Box<Prop>> {
+    pub fn get(&self, k: &str) -> Option<&Prop> {
         self.0.get(k)
     }
 }

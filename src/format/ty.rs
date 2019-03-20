@@ -99,15 +99,15 @@ impl Display for ParseErr {
 }
 
 impl Parser for Type {
-    type Output = Box<Prop>;
+    type Output = Prop;
     type Err = ParseErr;
-    fn parse(&self, s: &str) -> Result<Box<Prop>, ParseErr> {
+    fn parse(&self, s: &str) -> Result<Prop, ParseErr> {
         match self {
             Type::Bool(yes, no) => {
                 if s == yes {
-                    Ok(Box::new(true))
+                    Ok(Prop::Bool(true))
                 } else if s == no {
-                    Ok(Box::new(false))
+                    Ok(Prop::Bool(false))
                 } else {
                     Err(ParseErr::UndefinedLabel(
                         s.to_owned(),
@@ -117,28 +117,28 @@ impl Parser for Type {
             }
             Type::Int(unit) => unit
                 .parse(s)
-                .map(|v| Box::new(v) as Box<Prop>)
+                .map(Prop::Int)
                 .map_err(ParseErr::Int),
             Type::Float(unit) => unit
                 .parse(s)
-                .map(|v| Box::new(v) as Box<Prop>)
+                .map(Prop::Float)
                 .map_err(ParseErr::Float),
-            Type::Str => Ok(Box::new(s.to_owned())),
+            Type::Str => Ok(Prop::Str(s.to_owned())),
         }
     }
 }
 
 impl Type {
-    pub fn to_string(&self, p: &Box<Prop>) -> String {
-        match self {
-            Type::Bool(yes, no) => match p.as_any().downcast_ref::<bool>() {
-                Some(true) => yes.to_owned(),
-                Some(false) => no.to_owned(),
-                None => unreachable!(),
+    pub fn to_string(&self, p: &Prop) -> String {
+        match (p, self) {
+            (Prop::Bool(p), Type::Bool(yes, no)) => match p {
+                true => yes.to_owned(),
+                false => no.to_owned(),
             },
-            Type::Int(unit) => unit.to_string(p.as_any().downcast_ref().unwrap()),
-            Type::Float(unit) => unit.to_string(p.as_any().downcast_ref().unwrap()),
-            Type::Str => p.as_any().downcast_ref::<String>().unwrap().to_owned(),
+            (Prop::Int(p), Type::Int(unit)) => unit.to_string(p),
+            (Prop::Float(p), Type::Float(unit)) => unit.to_string(p),
+            (Prop::Str(p), Type::Str) => p.clone(),
+            _ => unreachable!()
         }
     }
 }

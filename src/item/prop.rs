@@ -1,24 +1,20 @@
-use std::fmt;
-use std::any::Any;
+use std::fmt::{ self, Display, Formatter };
 
-pub trait Prop: fmt::Display + fmt::Debug {
-    fn as_any(&self) -> &dyn Any;
+#[derive(Debug)]
+pub enum Prop {
+    Bool(bool),
+    Int(isize),
+    Float(f32),
+    Str(String),
 }
 
-macro_rules! impl_prop {
-    ($($T:ty,)*) => (impl_prop!{$($T),*});
-    ($($T:ty),*) => {
-        $(impl Prop for $T {
-            fn as_any(&self) -> &dyn Any {
-                self
-            }
-        })*
-    };
-}
-
-impl_prop!{
-    bool,
-    String,
-    f32,
-    isize,
+impl Display for Prop {
+    fn fmt(&self, f: &mut Formatter) -> fmt::Result {
+        match self {
+            Prop::Bool(v) => v.fmt(f),
+            Prop::Int(v) => v.fmt(f),
+            Prop::Float(v) => v.fmt(f),
+            Prop::Str(v) => v.fmt(f),
+        }
+    }
 }

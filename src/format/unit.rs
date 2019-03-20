@@ -66,15 +66,8 @@ impl<T: Num> FromStr for Unit<T> {
         if s.contains(",") {
             s.split(",")
                 .map(|s| {
-                    let mut v = s.splitn(2, "=");
-                    let name = v.next().ok_or(UnitError::MissingName)?.trim().to_owned();
-                    let size = v
-                        .next()
-                        .ok_or(UnitError::MissingValue)?
-                        .trim()
-                        .parse::<T>()
-                        .map_err(UnitError::ParseError)?;
-                    Ok((name, size))
+                    letn!(name?(UnitError::MissingName), size?(UnitError::MissingName) = s.splitn(2, "=").map(|s|s.trim()));
+                    Ok((name.to_owned(), size.parse::<T>().map_err(UnitError::ParseError)?))
                 })
                 .collect::<Result<Vec<_>, UnitError<T>>>()
                 .map(|mut v| {

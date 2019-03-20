@@ -28,10 +28,8 @@ impl FromStr for Var {
     type Err = VarError;
 
     fn from_str(s: &str) -> Result<Var, VarError> {
-        let mut iter = s.splitn(2, ":").map(|s|s.trim());
-        let name = iter.next().ok_or(VarError::MissingName)?.to_owned();
-        let ty = iter.next().ok_or(VarError::MissingType)?.parse().map_err(VarError::Type)?;
-        Ok(Var::new(name, ty))
+        letn!(name?(VarError::MissingName), ty?(VarError::MissingType) = s.splitn(2, ":").map(|s|s.trim()));
+        Ok(Var::new(name.to_owned(), ty.parse().map_err(VarError::Type)?))
     }
 }
 

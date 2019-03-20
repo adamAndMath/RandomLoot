@@ -1,4 +1,4 @@
-#![feature(test, transpose_result)]
+#![feature(test)]
 extern crate rand;
 extern crate test;
 

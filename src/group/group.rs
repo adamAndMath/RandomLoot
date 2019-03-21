@@ -27,16 +27,42 @@ impl Group {
         read_to_string(path)?.parse()
     }
 
-    pub fn generate(&self, amount: usize) -> Vec<(&Item, usize)> {
+    pub fn generate(&self, amount: usize) -> impl Iterator<Item = (&Item, usize)> {
         let quantifier = rand::thread_rng().sample_iter(&self.generator).take(amount).collect::<Quantifier>();
-        quantifier.into_iter().map(|(i, q)| (&self.items[i].1, q)).collect()
+        ItemIter { items: &self.items, iter: quantifier.into_iter() }
     }
 
-    pub fn print(&self, amount: usize) {
-        for (item, q) in self.generate(amount) {
-            println!("{}x{}", q, self.format.to_string(item));
-        }
+    pub fn generate_formated(&self, amount: usize) -> FormatedItemIter<impl Iterator<Item = (&Item, usize)>> {
+        FormatedItemIter { format: &self.format, iter: self.generate(amount) }
     }
+}
+
+struct ItemIter<'a, I: Iterator<Item = (usize, usize)>> {
+    items: &'a Vec<(usize, Item)>,
+    iter: I,
+}
+
+impl<'a, I: Iterator<Item = (usize, usize)>> Iterator for ItemIter<'a, I> {
+    type Item = (&'a Item, usize);
+    fn next(&mut self) -> Option<(&'a Item, usize)> {
+        self.iter.next().map(|(i, q)| (&self.items[i].1, q))
+    }
+
+    fn size_hint(&self) -> (usize, Option<usize>) { self.iter.size_hint() }
+}
+
+pub struct FormatedItemIter<'a, I: Iterator<Item = (&'a Item, usize)>> {
+    format: &'a Format,
+    iter: I,
+}
+
+impl<'a, I: Iterator<Item = (&'a Item, usize)>> Iterator for FormatedItemIter<'a, I> {
+    type Item = (String, usize);
+    fn next(&mut self) -> Option<(String, usize)> {
+        self.iter.next().map(|(i, q)| (self.format.to_string(i), q))
+    }
+
+    fn size_hint(&self) -> (usize, Option<usize>) { self.iter.size_hint() }
 }
 
 impl FromStr for Group {

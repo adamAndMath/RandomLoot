@@ -34,6 +34,9 @@ fn process() -> Result<(), String> {
 
     let group = Group::from_path(path).map_err(|e| format!("{}", e))?;
 
-    group.print(amount);
+    for (item, q) in group.generate_formated(amount) {
+        println!("{}x{}", q, item);
+    }
+    
     Ok(())
 }

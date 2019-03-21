@@ -3,5 +3,13 @@ name = "random_loot"
 version = "0.1.0"
 authors = ["Adam <adam.and.math@gmail.com>"]
 
+[lib]
+name = "loot"
+path = "./src/lib.rs"
+
+[[bin]]
+name = "random_loot"
+path = "./src/main.rs"
+
 [dependencies]
 rand = "0.6.1"

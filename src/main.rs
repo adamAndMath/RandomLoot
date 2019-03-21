@@ -1,17 +1,6 @@
-#![feature(test)]
-extern crate rand;
-extern crate test;
+extern crate loot;
 
-#[cfg(test)]
-mod tests;
-
-mod format;
-pub mod group;
-mod item;
-pub mod quantifier;
-pub mod quantifier_vec;
-
-use group::Group;
+use loot::group::Group;
 use std::env;
 
 fn main() {
@@ -37,6 +26,6 @@ fn process() -> Result<(), String> {
     for (item, q) in group.generate_formated(amount) {
         println!("{}x{}", q, item);
     }
-    
+
     Ok(())
 }

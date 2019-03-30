@@ -23,6 +23,10 @@ impl Group {
         Ok(Group { format, items, generator: generator })
     }
 
+    pub fn format(&self) -> &Format {
+        &self.format
+    }
+
     pub fn from_path<P: AsRef<Path>>(path: P) -> Result<Group, GroupErr> {
         read_to_string(path)?.parse()
     }

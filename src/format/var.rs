@@ -7,8 +7,8 @@ use super::{
 
 #[derive(Debug)]
 pub struct Var {
-    pub name: String,
-    pub ty: Type,
+    name: String,
+    ty: Type,
 }
 
 #[derive(Debug)]
@@ -21,6 +21,14 @@ pub enum VarError {
 impl Var {
     fn new(name: String, ty: Type) -> Self {
         Var { name, ty }
+    }
+
+    pub fn name(&self) -> &str {
+        &self.name
+    }
+
+    pub(super) fn ty(&self) -> &Type {
+        &self.ty
     }
 }
 

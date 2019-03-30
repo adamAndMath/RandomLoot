@@ -50,7 +50,7 @@ impl Format {
         }
 
         for (var, arg) in self.0.iter().zip(&args) {
-            item.insert(var.name.to_owned(), var.ty.parse(arg)?)
+            item.insert(var.name().to_owned(), var.ty().parse(arg)?)
         }
 
         let rand = args[args.len() - 1]
@@ -60,10 +60,13 @@ impl Format {
         Ok((rand, item))
     }
 
+    pub fn iter(&self) -> impl Iterator<Item=&Var> {
+        self.0.iter()
+    }
+
     pub fn to_string(&self, item: &Item) -> String {
-        self.0
-            .iter()
-            .map(|v| v.ty.to_string(item.get(&v.name).unwrap()))
+        self.iter()
+            .map(|v| v.ty().to_string(item.get(&v.name()).unwrap()))
             .collect::<Vec<String>>()
             .join(", ")
     }

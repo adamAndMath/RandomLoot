@@ -66,7 +66,7 @@ impl Format {
 
     pub fn to_string(&self, item: &Item) -> String {
         self.iter()
-            .map(|v| v.ty().to_string(item.get(&v.name()).unwrap()))
+            .map(|v| v.ty().to_string(&item[&v.name()]))
             .collect::<Vec<String>>()
             .join(", ")
     }

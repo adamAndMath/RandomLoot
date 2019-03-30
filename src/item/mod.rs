@@ -1,6 +1,7 @@
 mod prop;
 
 use std::collections::HashMap;
+use std::ops::Index;
 use std::fmt;
 
 pub use self::prop::Prop;
@@ -29,5 +30,12 @@ impl Item {
 
     pub fn get(&self, k: &str) -> Option<&Prop> {
         self.0.get(k)
+    }
+}
+
+impl<'a> Index<&'a str> for Item {
+    type Output = Prop;
+    fn index(&self, k: &str) -> &Prop {
+        self.get(k).expect("Invalid property")
     }
 }

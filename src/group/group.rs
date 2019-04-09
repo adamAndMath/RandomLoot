@@ -27,6 +27,10 @@ impl Group {
         &self.format
     }
 
+    pub fn items(&self) -> &[(usize, Item)] {
+        &self.items
+    }
+
     pub fn from_path<P: AsRef<Path>>(path: P) -> Result<Group, GroupErr> {
         read_to_string(path)?.parse()
     }
